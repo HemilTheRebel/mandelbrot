@@ -1,0 +1,94 @@
+#ifndef MANDELBROT_CORE_H
+#define MANDELBROT_CORE_H
+
+#include <complex>
+#include <functional>
+#include <unordered_set>
+
+
+using Complex = std::complex<double>;
+
+
+/**
+ * Hasher for Complex. Needed for std::unordered_set to work
+ */
+struct complex_hasher {
+  size_t operator()(Complex x) const {
+    return std::hash<double>{}(x.real()) ^ std::hash<double>{}(x.imag());
+  }
+};
+
+
+/**
+ * Check if Complex c is infinite.
+ * If c is infinite, infinite - infinite != 0
+ * If c is nan, nan - nan != 0
+ */
+bool infinite(Complex c) {
+  return c - c != Complex{};
+}
+
+/**
+ * A class that can add members to a datastructure that only stores
+ * unique values. Created to benchmark different data structures for
+ * this particular use case. 
+ */
+class unique_set {
+  std::unordered_set<Complex, complex_hasher> set{};
+
+public:
+
+  unique_set(){}
+  
+  /**
+   * Add element to data structure if not already exists. 
+   * Return if the element was inserted. False otherwise
+   */
+  bool add(Complex c) {
+    auto [_, inserted] = set.insert(c);
+    return inserted;
+  }
+};
+
+
+/**
+ * The number of iterations it takes function f to output
+ * a value twice. F is successively called on its own 
+ * output. Ex - f(x), f(f(x)), f(f(f(x))), etc. till max_iteration
+ * if no value is repeated till max iterations, -1 is retuned.
+ * Otherwise the number of iterations it took for a value to 
+ * repeat is returned. 
+ *
+ * !!Note:!! The value will never be less than 2 if the function
+ * repeats. This is because we need at least two values to check 
+ * if a value is repeated. 
+ */
+int iterations_to_repeat(std::function<Complex(Complex)> f, int max_iterations) {
+  Complex x{};
+  
+  unique_set outputs;
+    
+  int iterations = 0;
+  
+  while (iterations < max_iterations) {
+    iterations++;
+    x = f(x);
+
+    bool inserted = outputs.add(x);
+    bool repeated = !inserted;
+
+    if (repeated) {
+      return iterations;
+    }
+
+    if (infinite(x)) {
+      return -1;
+    }
+  }
+
+  return -1;
+}
+
+
+
+#endif

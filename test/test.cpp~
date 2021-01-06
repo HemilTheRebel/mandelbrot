@@ -1,0 +1,50 @@
+#define CATCH_CONFIG_MAIN
+
+#include "catch.hpp"
+#include "core.hpp"
+
+TEST_CASE("Iterations to repeat test cases") {
+    SECTION("f(x) = x^2 + (-1 - 1i) takes 3 iterations to repeat") {
+        const Complex c(-1);
+        auto mandelbrot_set = [=](Complex x) {
+            return x * x + c;
+        };
+
+        int iterations = iterations_to_repeat(mandelbrot_set, 1000);
+
+        /**
+	 * In iteration 1: x = f(x) => -1
+	 * In iteration 2: x = f(x) => 0
+	 * In iteration 3: x = f(x) => -1
+	 */
+	REQUIRE(iterations == 3);
+    }
+
+    SECTION("f(x) = 1 takes 2 iterations to repeat") {
+      auto unity = [](Complex _) {
+	  return 1;
+      };
+
+      int iterations = iterations_to_repeat(unity, 1000);
+
+      REQUIRE(iterations == 2);
+    }
+
+    SECTION("f(x) = x^2 + 1 returns -1 because the elements never repeat") {
+      const Complex c(1);
+      auto mandelbrot_set = [=](Complex x) {
+	return x * x + c;
+      };
+
+      int iterations = iterations_to_repeat(mandelbrot_set, 100);
+
+      REQUIRE(iterations == -1);
+    }
+}
+
+
+TEST_CASE("Mandelbrot set test cases") {
+  SECTION("Mandelbrot set between 0 and 4 with step 1 returns a set containing 0") {
+
+  }
+}
