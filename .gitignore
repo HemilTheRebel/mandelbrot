@@ -4,3 +4,8 @@ release/
 cmake-build-debug/
 cmake-build-release/
 .idea/
+
+# files end with ~ are created by emacs to
+# store temporary files. Should not be in version
+# control
+*~
